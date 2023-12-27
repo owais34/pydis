@@ -53,4 +53,4 @@ import sys
 if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
     subprocess.run("bash pipeline.sh")
 elif sys.platform.startswith("win32"):
-    subprocess.run(".\pipeline.ps1")
+    subprocess.run("pipeline.ps1")
