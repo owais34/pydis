@@ -47,10 +47,13 @@ import sys
 # else:
 #     print("please use option install or test >> py pipeline.py install or py pieline.py test")
     
-            
+    
 
 
 if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
     subprocess.run("bash pipeline.sh")
 elif sys.platform.startswith("win32"):
-    subprocess.run("pipeline.ps1")
+    p = subprocess.Popen(["powershell.exe","-ExecutionPolicy", "RemoteSigned", "-file",
+              sys.path[0] +"\\pipeline.ps1"], 
+              stdout=sys.stdout)
+    p.communicate()
