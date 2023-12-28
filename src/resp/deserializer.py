@@ -21,13 +21,17 @@ from collections import deque
 # 16)Maps -> %<number-of-entries>\r\n<key-1><value-1>...<key-n><value-n> , %2\r\n+first\r\n:1\r\n+second\r\n:2\r\n
 # 17)Sets -> ~<number-of-elements>\r\n<element-1>...<element-n> , 
 
+BULK_STRING_LIMIT = 512000000
+SIMPLE_STRING_LIMIT = 100
+
 def deserialize(serialized_input: str):
     # Implement this function
     # parse above string and return a python data type as output ( it should be a one-to-one translation )
     # Example : +OK\r\n => "OK" , 
     #  *2\r\n$5\r\nhello\r\n$5\r\nworld\r\n  -> ["hello","world"]
+    # ["*2","$5","hello","$5","world"]
     token_queue = deque(serialized_input.split("\r\n"))
-    return deserialize_helper(token_queue=token_queue)
+    return deserialize_helper(token_queue)
 
 def deserialize_helper(token_queue: deque):
     current_element = token_queue.popleft()
@@ -35,39 +39,43 @@ def deserialize_helper(token_queue: deque):
     match current_element[0]:
         case "+":
             # handle simple string
+            if len(current_element[1:])>SIMPLE_STRING_LIMIT:
+                raise Exception("Max string length exceeded for Simple String")
             return current_element[1:]
         case "-":
             # Error handling to be implemented below placeholder for now
             exception = Exception(current_element[1:])
             return exception
         case ":":
-            return get_int(current_element=current_element)
+            return get_int(current_element)
         case "$":
             string_length = int(current_element[1:])
-            return get_bulk_string(token_queue=token_queue, string_length=string_length)
+            if string_length>BULK_STRING_LIMIT:
+                raise Exception("Max string length exceeded for Bulk String")
+            return get_bulk_string(token_queue, string_length)
         case "*":
             array_length = int(current_element[1:])
-            return get_array(token_queue=token_queue,array_length=array_length)
+            return get_array(token_queue,array_length)
         case "_":
             return None
         case "#":
-            return get_boolean(current_element=current_element)
+            return get_boolean(current_element)
         case ",":
-            return get_double(current_element=current_element)
+            return get_double(current_element)
         case "(":
-            return get_int(current_element=current_element)
+            return get_int(current_element)
         case "!":
             string_length = int(current_element[1:])
-            return get_bulk_error(token_queue=token_queue,string_length=string_length)
+            return get_bulk_error(token_queue,string_length)
         case "=":
             string_length = int(current_element[1:])
-            return get_verbatim_string(token_queue=token_queue,string_length=string_length)
+            return get_verbatim_string(token_queue,string_length)
         case "%":
             map_length = int(current_element[1:])
-            return get_map(token_queue=token_queue, map_length=map_length)
+            return get_map(token_queue, map_length=map_length)
         case "~":
             set_length = int(current_element[1:])
-            return get_set(token_queue=token_queue, set_length=set_length)
+            return get_set(token_queue, set_length=set_length)
         
         
             
@@ -121,7 +129,7 @@ def get_bulk_error(token_queue: deque, string_length: int) -> str:
     return Exception(bulk_string)
 
 def get_verbatim_string(token_queue: deque, string_length: int) -> bytes:
-    raw_string = get_bulk_string(token_queue=token_queue,string_length=string_length)
+    raw_string = get_bulk_string(token_queue,string_length)
     components = raw_string.split(":")
     encoding_mapper = {"txt":"utf-8"}
     return bytes(components[1], encoding_mapper.get(components[0]))
@@ -130,10 +138,10 @@ def get_map(token_queue: deque, map_length: int) -> dict:
     output_dictionary = {}
 
     for iterator in range(map_length):
-        current_key = deserialize_helper(token_queue=token_queue)
+        current_key = deserialize_helper(token_queue)
         if isinstance(current_key,str) == False:
             raise Exception("Invalid Key Type expected str found "+str(current_key.__class__))
-        current_value = deserialize_helper(token_queue=token_queue)
+        current_value = deserialize_helper(token_queue)
         output_dictionary[current_key]=current_value
 
     return output_dictionary
@@ -141,6 +149,9 @@ def get_map(token_queue: deque, map_length: int) -> dict:
 def get_set(token_queue: deque, set_length: int) -> set:
     output_set = set()
     for iterator in range(set_length):
-        output_set.add(deserialize_helper(token_queue=token_queue))
+        output_set.add(deserialize_helper(token_queue))
 
     return output_set
+
+
+# print(deserialize("%2\r\n+first\r\n%2\r\n+nestedfirst\r\n:3\r\n+nestedSecond\r\n:4\r\n+second\r\n:2\r\n"))
