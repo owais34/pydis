@@ -1,4 +1,4 @@
-from src.resp.resp_module import deserialize
+from src.resp.deserializer import deserialize
 import pytest
 
 def test_simple_string():
