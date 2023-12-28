@@ -21,8 +21,6 @@ from collections import deque
 # 16)Maps -> %<number-of-entries>\r\n<key-1><value-1>...<key-n><value-n> , %2\r\n+first\r\n:1\r\n+second\r\n:2\r\n
 # 17)Sets -> ~<number-of-elements>\r\n<element-1>...<element-n> , 
 
-string_sample = "*6\r\n$5\r\nHMSET\r\n$4\r\nkey3\r\n$4\r\ncol1\r\n$1\r\n1\r\n$4\r\ncol2\r\n$1\r\n2\r\n"
-
 def deserialize(serialized_input: str):
     # Implement this function
     # parse above string and return a python data type as output ( it should be a one-to-one translation )
@@ -146,4 +144,3 @@ def get_set(token_queue: deque, set_length: int) -> set:
         output_set.add(deserialize_helper(token_queue=token_queue))
 
     return output_set
-

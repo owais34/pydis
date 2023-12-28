@@ -67,3 +67,8 @@ def test_set():
     resp_str ="~2\r\n$5\r\nhello\r\n$5\r\nworld\r\n"
     output_set = set(["hello","world"])
     assert deserialize(resp_str) == output_set
+
+def test_aggregate():
+    string_sample = "*6\r\n$5\r\nHMSET\r\n$4\r\nkey3\r\n$4\r\ncol1\r\n$1\r\n1\r\n$4\r\ncol2\r\n$1\r\n2\r\n"
+    print(deserialize(string_sample))
+    assert True
