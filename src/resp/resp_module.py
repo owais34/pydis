@@ -43,7 +43,7 @@ def deserialize_helper(token_queue: deque):
             exception = Exception(current_element[1:])
             return exception
         case ":":
-            return int(current_element[1:])
+            return get_int(current_element=current_element)
         case "$":
             string_length = int(current_element[1:])
             return get_bulk_string(token_queue=token_queue, string_length=string_length)
@@ -53,13 +53,14 @@ def deserialize_helper(token_queue: deque):
         case "_":
             return None
         case "#":
-            return #define a function to process and return a boolean value given current_element as input
+            return get_boolean(current_element=current_element)
         case ",":
-            return #define a function to process and return a double value given current_element as input (handle inf and NaN as well)
+            return get_double(current_element=current_element)
         case "(":
-            return #define a function to process and return a big integer (Hint: just handle it like an int )
+            return get_int(current_element=current_element)
         case "!":
-            return #define a function to process and handle bulk errors
+            string_length = int(current_element[1:])
+            return get_bulk_error(token_queue=token_queue,string_length=string_length)
         case "=":
             return #define a function to process and return Verbatim strings
         case "%":
@@ -70,7 +71,8 @@ def deserialize_helper(token_queue: deque):
         
             
 
-
+def get_int(current_element: str) -> int:
+    return int(current_element[1:])
 
 def get_bulk_string(token_queue: deque, string_length: int) -> str:
     if string_length == -1:
@@ -96,6 +98,23 @@ def get_array(token_queue: deque, array_length: int) -> list:
         #         raise e
     return array
         
+def get_boolean(current_element: str)->bool:
+    if current_element[1:] == "t":
+        return True
+    elif current_element[1:] == "f":
+        return False
+    else:
+        raise Exception("Invalid boolean type expected t/f found " + current_element[1:])
 
+def get_double(current_element: str)->float:
+    return float(current_element[1:])
 
+def get_bulk_error(token_queue: deque, string_length: int) -> str:
+    if string_length == -1:
+        return None
+    
+    bulk_string = token_queue.popleft()
 
+    if len(bulk_string) != string_length:
+        raise Exception("ERROR bulk string length doesnt match")
+    return Exception(bulk_string)
