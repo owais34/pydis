@@ -47,8 +47,6 @@ import sys
 # else:
 #     print("please use option install or test >> py pipeline.py install or py pieline.py test")
     
-    
-
 
 if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
     subprocess.run("bash pipeline.sh")
