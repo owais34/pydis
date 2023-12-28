@@ -26,3 +26,25 @@ def test_bulk_string_1():
 
 def test_array():
     assert deserialize("*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n") == ["hello","world"]
+
+def test_boolean():
+    assert deserialize("#t\r\n") == True
+
+def test_boolean2():
+    assert deserialize("#f\r\n") == False
+
+def test_doubles():
+    assert deserialize(",1.23\r\n") == 1.23
+
+def test_doubles2():
+    assert deserialize(",-1111.78\r\n") == -1111.78
+
+def test_doubles3():
+    assert deserialize(",-inf\r\n") == float("-inf")
+
+def test_doubles4():
+    assert deserialize(",nan\r\n") == float("nan")
+
+def test_bignumber():
+    assert deserialize("(3492890328409238509324850943850943825024385\r\n") == int("3492890328409238509324850943850943825024385")
+    
