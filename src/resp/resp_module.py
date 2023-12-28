@@ -62,11 +62,14 @@ def deserialize_helper(token_queue: deque):
             string_length = int(current_element[1:])
             return get_bulk_error(token_queue=token_queue,string_length=string_length)
         case "=":
-            return #define a function to process and return Verbatim strings
+            string_length = int(current_element[1:])
+            return get_verbatim_string(token_queue=token_queue,string_length=string_length)
         case "%":
-            return #define a function to process and return maps
+            map_length = int(current_element[1:])
+            return get_map(token_queue=token_queue, map_length=map_length)
         case "~":
-            return #define a function to process and return sets (Hint: handle like an array but return a set instead of list)
+            set_length = int(current_element[1:])
+            return get_set(token_queue=token_queue, set_length=set_length)
         
         
             
@@ -106,7 +109,7 @@ def get_boolean(current_element: str)->bool:
     else:
         raise Exception("Invalid boolean type expected t/f found " + current_element[1:])
 
-def get_double(current_element: str)->float:
+def get_double(current_element: str) -> float:
     return float(current_element[1:])
 
 def get_bulk_error(token_queue: deque, string_length: int) -> str:
@@ -118,3 +121,29 @@ def get_bulk_error(token_queue: deque, string_length: int) -> str:
     if len(bulk_string) != string_length:
         raise Exception("ERROR bulk string length doesnt match")
     return Exception(bulk_string)
+
+def get_verbatim_string(token_queue: deque, string_length: int) -> bytes:
+    raw_string = get_bulk_string(token_queue=token_queue,string_length=string_length)
+    components = raw_string.split(":")
+    encoding_mapper = {"txt":"utf-8"}
+    return bytes(components[1], encoding_mapper.get(components[0]))
+
+def get_map(token_queue: deque, map_length: int) -> dict:
+    output_dictionary = {}
+
+    for iterator in range(map_length):
+        current_key = deserialize_helper(token_queue=token_queue)
+        if isinstance(current_key,str) == False:
+            raise Exception("Invalid Key Type expected str found "+str(current_key.__class__))
+        current_value = deserialize_helper(token_queue=token_queue)
+        output_dictionary[current_key]=current_value
+
+    return output_dictionary
+
+def get_set(token_queue: deque, set_length: int) -> set:
+    output_set = set()
+    for iterator in range(set_length):
+        output_set.add(deserialize_helper(token_queue=token_queue))
+
+    return output_set
+
