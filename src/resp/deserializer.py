@@ -128,11 +128,14 @@ def get_bulk_error(token_queue: deque, string_length: int) -> str:
         raise Exception("ERROR bulk string length doesnt match")
     return Exception(bulk_string)
 
-def get_verbatim_string(token_queue: deque, string_length: int) -> bytes:
+def get_verbatim_string(token_queue: deque, string_length: int) -> dict:
     raw_string = get_bulk_string(token_queue,string_length)
     components = raw_string.split(":")
-    encoding_mapper = {"txt":"utf-8"}
-    return bytes(components[1], encoding_mapper.get(components[0]))
+    file_format = components[0]
+    output_dict = {}
+    output_dict["format"]=file_format
+    output_dict["bytes"]=bytes(components[1], "utf-8")
+    return output_dict
 
 def get_map(token_queue: deque, map_length: int) -> dict:
     output_dictionary = {}

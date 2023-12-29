@@ -1,7 +1,7 @@
 from sys import getsizeof
 
 BULK_STRING_LIMIT = 512000000
-SIMPLE_STRING_LIMIT = 100
+SIMPLE_STRING_LIMIT = 10
 
 DELIMITER = "\r\n"
 
@@ -37,7 +37,13 @@ def encode_bulk_string(deserialized_input: str) -> str:
          raise Exception("String length exceeded")
 
 def encode_exception(deserialized_input: Exception) -> str:
-    return "-"+str(deserialized_input)+DELIMITER
+    error_len = len(str(deserialized_input))
+    if error_len<=10:
+        return "-"+str(deserialized_input)+DELIMITER
+    else:
+        components = ["!"+str(error_len),str(deserialized_input),""]
+        return DELIMITER.join(components)
+
 
 def encode_int(deserialized_input: int) -> str:
     if getsizeof(deserialized_input) <= 64:
@@ -62,6 +68,13 @@ def encode_boolean(deserialized_input: bool) -> str:
     
 def encode_float(deserialized_input: float) -> str:
     return ","+str(deserialized_input)+DELIMITER
+
+def encode_bytes(deserialized_input: dict) -> str:
+    component_2 = deserialized_input["format"]+":"+deserialized_input["bytes"].decode("utf-8")
+    component_1 = "="+str(len(bytes(component_2,"utf-8")))
+    return DELIMITER.join([component_1,component_2,""])
+
+
 
 
 
