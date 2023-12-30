@@ -1,5 +1,5 @@
 from collections import deque
-from src.utils.util_classes import singleton
+from utils.util_classes import singleton
 
 # implement serializer and deserializer compatible for both RESP2 & RESP3
 
@@ -83,9 +83,6 @@ class Deserializer:
             case "~":
                 set_length = int(current_element[1:])
                 return self.get_set(token_queue, set_length=set_length)
-            
-            
-                
 
     def get_int(self, current_element: str) -> int:
         return int(current_element[1:])
@@ -162,5 +159,4 @@ class Deserializer:
             output_set.add(self.deserialize_helper(token_queue))
 
         return output_set
-
 

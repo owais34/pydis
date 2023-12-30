@@ -1,5 +1,5 @@
 from sys import getsizeof
-from src.utils.util_classes import singleton
+from utils.util_classes import singleton
 
 BULK_STRING_LIMIT = 512000000
 SIMPLE_STRING_LIMIT = 10
@@ -109,7 +109,6 @@ class Serializer:
             components.append(self.serialize(element))
         
         return "".join(components)
-
 
 
 
