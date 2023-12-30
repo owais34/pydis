@@ -1,3 +1,5 @@
+from utils.util_classes import synchronized
+
 class RListNode:
     def __init__(self, value) -> None:
         self.value = value
@@ -11,6 +13,7 @@ class RList():
         self.head = None
         self.tail = None
 
+    @synchronized
     def push_left(self, value) -> int:
         node = RListNode(value)
         if self.head == None:
@@ -22,6 +25,7 @@ class RList():
         self.length+=1
         return self.length
     
+    @synchronized
     def push_right(self, value) -> int:
         if self.length == 0:
             return self.push_left(value)
@@ -35,6 +39,7 @@ class RList():
     def get_length(self)->int:
         return self.length
     
+    @synchronized
     def pop_left(self)->any:
         if self.length==0:
             return None
@@ -47,6 +52,7 @@ class RList():
         self.length-=1
         return value
 
+    @synchronized
     def pop_right(self) -> any:
         if self.length == 0:
             return None
@@ -59,6 +65,7 @@ class RList():
         self.length-=1
         return value
     
+    @synchronized
     def pos_from_left(self, value) -> int | None:
         iterator = self.head
         index = 0
@@ -70,6 +77,7 @@ class RList():
         
         return None
     
+    @synchronized
     def get_index(self, index: int):
         if(index<0):
             iterator = self.tail
@@ -87,7 +95,8 @@ class RList():
                 iterator=iterator.next
                 index-=1
             return iterator.value
-        
+
+    @synchronized   
     def range(self, start: int, end: int) -> list:
         output_list=[]
         if self.length == 0:
@@ -117,6 +126,7 @@ class RList():
         
         return output_list
     
+    @synchronized
     def remove(self, value, count=0)->int:
         if count==0:
             count=self.length
