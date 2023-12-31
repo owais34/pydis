@@ -1,5 +1,5 @@
 from sys import getsizeof
-from utils.util_classes import singleton
+from ..utils.util_classes import singleton
 
 BULK_STRING_LIMIT = 512000000
 SIMPLE_STRING_LIMIT = 10

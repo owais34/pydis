@@ -1,5 +1,5 @@
 from collections import deque
-from utils.util_classes import singleton
+from ..utils.util_classes import singleton
 
 # implement serializer and deserializer compatible for both RESP2 & RESP3
 
@@ -94,7 +94,7 @@ class Deserializer:
         bulk_string = token_queue.popleft()
         byte_array_len = len(bytes(bulk_string,"utf-8"))
         if byte_array_len != string_length:
-            raise Exception("ERROR bulk string length doesnt match")
+            raise Exception("ERROR bulk string length doesnt match expected %d got %d, |%s|" %(string_length,byte_array_len, bulk_string))
         return bulk_string
 
     def get_array(self, token_queue: deque, array_length: int) -> list:
