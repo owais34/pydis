@@ -1,4 +1,4 @@
-from utils.util_classes import synchronized
+from ..utils.util_classes import synchronized
 
 class RListNode:
     def __init__(self, value) -> None:

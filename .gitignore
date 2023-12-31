@@ -1,3 +1,5 @@
 venv/
 .pytest_cache
 __pycache__
+demofile1.txt
+demofile2.txt
