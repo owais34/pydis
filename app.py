@@ -1,30 +1,45 @@
-# from resp.serializer import Serializer
 
-# print(Serializer().serialize({"list":["this","is","a","list"],"number":12445455}))
+
 from typing import Annotated
 from uuid import uuid4
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 from fastapi import FastAPI,Header,Response,status,Request
 from src.resp.deserializer import Deserializer
 from src.resp.serializer import Serializer
+from src.datastore.globaldata import GlobalDataStore
+from src.datastore.persist import RUN_STORAGE_SERVICE
 import json
 import os
 
-app = FastAPI()
-
 token_dict = {}
 
+GLOBAL_DATA_STORE = GlobalDataStore()
+
 password_server = "password"
+
+
 
 class AuthItem(BaseModel):
     password: str
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    yield
+    global RUN_STORAGE_SERVICE
+    RUN_STORAGE_SERVICE = False
+
+
+app = FastAPI(lifespan=lifespan)
+
+
 @app.post("/")
 async def handle_commnds(request: Request):
     bytes_form = await request.body()
-    deserialized = Deserializer().deserialize(bytes_form.decode("utf-8"))
-    print(deserialized)
-    return Serializer().serialize(deserialized)
+    #deserialized = Deserializer().deserialize(bytes_form.decode("utf-8"))
+    deserialized = bytes_form.decode("utf-8").split(" ")
+    return GLOBAL_DATA_STORE.process_command(deserialized)
 
 @app.post("/serialize")
 async def handleSerialize(request: Request):

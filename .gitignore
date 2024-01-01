@@ -3,3 +3,5 @@ venv/
 __pycache__
 demofile1.txt
 demofile2.txt
+LOGS/
+DATASTORE/
