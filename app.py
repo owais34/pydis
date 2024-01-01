@@ -18,8 +18,6 @@ GLOBAL_DATA_STORE = GlobalDataStore()
 
 password_server = "password"
 
-
-
 class AuthItem(BaseModel):
     password: str
 

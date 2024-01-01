@@ -4,4 +4,4 @@ __pycache__
 demofile1.txt
 demofile2.txt
 LOGS/
-DATASTORE/
+DATA_STORE/
