@@ -8,8 +8,6 @@ class GlobalDataStore():
         self.shard_list = []
         self.current_shard = Shard()
         self.shard_list.append(self.current_shard)
-        self.logger_instance = Logger()
-        self.command_runner = CommandRunner(self)
         pass
 
     def get(self, key: str) -> any:

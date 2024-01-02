@@ -14,8 +14,6 @@ import os
 
 token_dict = {}
 
-GLOBAL_DATA_STORE = GlobalDataStore()
-
 password_server = "password"
 
 class AuthItem(BaseModel):
