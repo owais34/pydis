@@ -1,8 +1,6 @@
 from .logger import Logger
 from .shard import Shard
-from .persist import PersistAtTimeBehaviour, LocalStorage
 from ..utils.util_classes import singleton
-from ..resp.serializer import Serializer
 
 @singleton
 class GlobalDataStore():
@@ -11,7 +9,6 @@ class GlobalDataStore():
         self.current_shard = Shard()
         self.shard_list.append(self.current_shard)
         self.logger_instance = Logger()
-        self.persistBehaviour = PersistAtTimeBehaviour(self,LocalStorage(),start_at_time="14:45:00")
         self.command_runner = CommandRunner(self)
         pass
 
@@ -40,16 +37,13 @@ class GlobalDataStore():
         
         return self.current_shard
     
+    def set_shard_list_if_not_empty(self, shard_list: list):
+        if shard_list != None and len(shard_list)>0:
+            self.shard_list = shard_list
+            self.current_shard = shard_list[-1]
+
     
-    def process_command(self, deserialized_command) -> any:
-        # on execution of command
-        response = self.command_runner.run(deserialized_command)
-        if isinstance(deserialized_command, list):
-            self.logger_instance.capture(" ".join(deserialized_command))
-        else:
-            self.logger_instance.capture(deserialized_command)
-        return Serializer().serialize(response)
-            
+    
 
 @singleton
 class CommandRunner():

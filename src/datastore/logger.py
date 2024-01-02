@@ -13,7 +13,7 @@ class Logger():
         pass
 
     def capture(self, command: str) -> None:
-        filename = "LOG-"+strftime("%d-%b-%Y.txt", 
+        filename = "LOG-"+strftime("%Y-%b-%d.txt", 
              gmtime(time()))
         fullpath = os.path.join(self.path,filename)
         with open(fullpath, "a") as file:
