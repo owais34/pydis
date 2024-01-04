@@ -3,16 +3,19 @@
 from typing import Annotated
 from uuid import uuid4
 from pydantic import BaseModel
+from time import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI,Header,Response,status,Request
 from src.resp.deserializer import Deserializer
 from src.resp.serializer import Serializer
-from src.datastore.globaldata import GlobalDataStore
-from src.datastore.persist import RUN_STORAGE_SERVICE
+from src.datastore.persist import STORAGE_SERVICE
+from src.pydis import Pydis
 import json
 import os
 
 token_dict = {}
+
+# uvicorn app:app --reload     
 
 password_server = "password"
 
@@ -23,19 +26,17 @@ class AuthItem(BaseModel):
 async def lifespan(app: FastAPI):
 
     yield
-    global RUN_STORAGE_SERVICE
-    RUN_STORAGE_SERVICE = False
+    STORAGE_SERVICE.stop()
 
 
 app = FastAPI(lifespan=lifespan)
-
+pydisapp = Pydis()
 
 @app.post("/")
-async def handle_commnds(request: Request):
+async def handle_commands(request: Request):
     bytes_form = await request.body()
-    #deserialized = Deserializer().deserialize(bytes_form.decode("utf-8"))
-    deserialized = bytes_form.decode("utf-8").split(" ")
-    return GLOBAL_DATA_STORE.process_command(deserialized)
+    op=pydisapp.process_serialized(bytes_form)
+    return op
 
 @app.post("/serialize")
 async def handleSerialize(request: Request):
@@ -47,7 +48,7 @@ async def handleSerialize(request: Request):
     bytess= bytes(serialized,"utf-8")
     f.write(bytess)
     f.close()
-    return "+OK\r\n"
+    return serialized
 
 @app.post("/deserialize")
 async def handleDeserialize(request: Request):

@@ -59,4 +59,11 @@ class CommandRunner():
                     return self.datastore.get(deserialized_command[1])
                 case "SET":
                     return self.datastore.put(deserialized_command[1], deserialized_command[2])
+                
+    def execute_all(self, command_list: list):
+        for command in command_list:
+            self.run(command)
+
+    
+        
 

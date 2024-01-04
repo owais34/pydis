@@ -4,12 +4,23 @@ import os
 import json
 import glob
 import bigjson
+from ..utils.util_classes import singleton
 
-RUN_STORAGE_SERVICE = True
+@singleton
+class StorageService():
+    def __init__(self) -> None:
+        self.run_storage_service = True
+    
+    def stop(self):
+        self.run_storage_service = False
 
+
+STORAGE_SERVICE = StorageService()
+
+@singleton
 class LocalStorage():
     def __init__(self) -> None:
-        self.path=os.path.join(os.path.curdir,"DATA_STORE")
+        self.path=os.path.join(os.getcwd(),"DATA_STORE")
         try:
             os.mkdir(self.path)
         except:
@@ -17,7 +28,7 @@ class LocalStorage():
         pass
 
     def save(self, filename: str, content: any):
-        print("Stared Save job for file "+filename+" at "+asctime())
+        print("Started Save job for file "+filename+" at "+asctime())
         binary_content = json.dumps(content).encode("utf-8")
         fullpath = os.path.join(self.path, filename+".dat")
         with open(fullpath, "wb") as file:
@@ -31,21 +42,20 @@ class LocalStorage():
         content_list = []
         for filename in glob.glob(os.path.join(self.path, filenamePrefix + '*.dat')):
             with open(os.path.join(self.path, filename), 'rb') as f:
-                content_list.append(bigjson.load(f))
+                content_list.append(json.load(f))
         
         return content_list
     
     def get_last_saved_time(self)-> float:
-        with open(os.path.join(self.path, "saved_at.txt"), "r") as f:
-            last_saved_time = float(f.read())
-        return last_saved_time
+        try:
+            with open(os.path.join(self.path, "saved_at.txt"), "r") as f:
+                last_saved_time = float(f.read())
+            return last_saved_time
+        except:
+            return 0
 
 
-
-        
-
-
-
+@singleton
 class PersistAtTimeBehaviour():
     def __init__(self,datastore, storage: LocalStorage, start_at_time: str = "02:00:00", interval_in_seconds: int = 86400, filename_prefix: str = "shard") -> None:
         self.start_time = 0
@@ -61,7 +71,7 @@ class PersistAtTimeBehaviour():
 
 
     def run(self):
-        while RUN_STORAGE_SERVICE:
+        while STORAGE_SERVICE.run_storage_service:
             current_time = time()
             if self.start_time == 0 and strftime("%H:%M:%S", localtime(current_time)) == self.start_at_time:
                 self.start_time = current_time
