@@ -1,30 +1,42 @@
-# from resp.serializer import Serializer
 
-# print(Serializer().serialize({"list":["this","is","a","list"],"number":12445455}))
+
 from typing import Annotated
 from uuid import uuid4
 from pydantic import BaseModel
+from time import time
+from contextlib import asynccontextmanager
 from fastapi import FastAPI,Header,Response,status,Request
 from src.resp.deserializer import Deserializer
 from src.resp.serializer import Serializer
+from src.datastore.persist import STORAGE_SERVICE
+from src.pydis import Pydis
 import json
 import os
 
-app = FastAPI()
-
 token_dict = {}
+
+# uvicorn app:app --reload     
 
 password_server = "password"
 
 class AuthItem(BaseModel):
     password: str
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    yield
+    STORAGE_SERVICE.stop()
+
+
+app = FastAPI(lifespan=lifespan)
+pydisapp = Pydis()
+
 @app.post("/")
-async def handle_commnds(request: Request):
+async def handle_commands(request: Request):
     bytes_form = await request.body()
-    deserialized = Deserializer().deserialize(bytes_form.decode("utf-8"))
-    print(deserialized)
-    return Serializer().serialize(deserialized)
+    op=pydisapp.process_serialized(bytes_form)
+    return op
 
 @app.post("/serialize")
 async def handleSerialize(request: Request):
@@ -36,7 +48,7 @@ async def handleSerialize(request: Request):
     bytess= bytes(serialized,"utf-8")
     f.write(bytess)
     f.close()
-    return "+OK\r\n"
+    return serialized
 
 @app.post("/deserialize")
 async def handleDeserialize(request: Request):
@@ -59,4 +71,6 @@ def authorize(X_Forwarded_For: Annotated[list[str] | None, Header()] = None,auth
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message":"Wrong credentials"}
+
+
 
