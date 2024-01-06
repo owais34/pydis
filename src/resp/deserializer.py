@@ -1,5 +1,6 @@
 from collections import deque
 from ..utils.util_classes import singleton
+from time import time
 
 # implement serializer and deserializer compatible for both RESP2 & RESP3
 
@@ -36,7 +37,8 @@ class Deserializer:
         #  *2\r\n$5\r\nhello\r\n$5\r\nworld\r\n  -> ["hello","world"]
         # ["*2","$5","hello","$5","world"]
         token_queue = deque(serialized_input.split("\r\n"))
-        return self.deserialize_helper(token_queue)
+        output = self.deserialize_helper(token_queue)
+        return output
 
     def deserialize_helper(self, token_queue: deque):
         current_element = token_queue.popleft()

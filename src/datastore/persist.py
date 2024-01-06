@@ -3,7 +3,6 @@ import threading
 import os
 import json
 import glob
-import bigjson
 from ..utils.util_classes import singleton
 
 @singleton
@@ -24,7 +23,7 @@ class LocalStorage():
         try:
             os.mkdir(self.path)
         except:
-            print("Directory already exists")
+            print("Persist Directory already exists")
         pass
 
     def save(self, filename: str, content: any):

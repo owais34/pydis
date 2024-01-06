@@ -2,6 +2,10 @@ from .logger import Logger
 from .shard import Shard
 from ..utils.util_classes import singleton
 from collections import deque
+from ..resp.deserializer import Deserializer
+from ..resp.serializer import Serializer
+from time import time
+import json
 
 @singleton
 class GlobalDataStore():
@@ -69,7 +73,48 @@ class CommandRunner():
                 
     def execute_all(self, command_list: list):
         for command in command_list:
-            self.run(command)
+            self.run_json_command(command)
+
+    def run_serialized(self, command):
+        deserialized_cmd = Deserializer().deserialize(command)
+        final_output = None
+        match deserialized_cmd[0]:
+            case "PING":
+                final_output = "PONG"
+            case "GET":
+                try:
+                    final_output=self.datastore.get(deserialized_cmd[1])
+                except Exception as e:
+                    final_output = e
+            case "SET":
+                try:
+                    final_output = self.datastore.put(deserialized_cmd[1],deserialized_cmd[2])
+                    Logger().capture(deserialized_cmd,time())
+                except Exception as e:
+                    final_output = e
+        ser_output = Serializer().serialize(final_output)
+
+        return ser_output
+    
+    def run_json_command(self, command):
+        decoded_json = json.loads(command)
+        final_output = None
+        match decoded_json[0]:
+            case "PING":
+                final_output = "PONG"
+            case "GET":
+                try:
+                    final_output=self.datastore.get(decoded_json[1])
+                except Exception as e:
+                    final_output = e
+            case "SET":
+                try:
+                    final_output = self.datastore.put(decoded_json[1],decoded_json[2])
+                    Logger().capture(command,time())
+                except Exception as e:
+                    final_output = e
+        return final_output
+
 
     
         

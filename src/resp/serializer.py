@@ -1,5 +1,6 @@
 from sys import getsizeof
 from ..utils.util_classes import singleton
+from time import time
 
 BULK_STRING_LIMIT = 512000000
 SIMPLE_STRING_LIMIT = 10
@@ -10,26 +11,29 @@ DELIMITER = "\r\n"
 class Serializer:
 
     def serialize(self, deserialized_input: any) -> str:
+        output = ""
         if deserialized_input == None:
-            return "_"+DELIMITER
+            output = "_"+DELIMITER
         elif isinstance(deserialized_input, str):
-            return self.encode_string(deserialized_input)
+            output = self.encode_string(deserialized_input)
         elif isinstance(deserialized_input, Exception):
-            return self.encode_exception(deserialized_input)
+            output = self.encode_exception(deserialized_input)
         elif isinstance(deserialized_input, bool):
-            return self.encode_boolean(deserialized_input)
+            output = self.encode_boolean(deserialized_input)
         elif isinstance(deserialized_input, int):
-            return self.encode_int(deserialized_input)
+            output = self.encode_int(deserialized_input)
         elif isinstance(deserialized_input, list):
-            return self.encode_list(deserialized_input)
+            output = self.encode_list(deserialized_input)
         elif isinstance(deserialized_input, float):
-            return self.encode_float(deserialized_input)
+            output = self.encode_float(deserialized_input)
         elif self.is_verbatim_string(deserialized_input):
-            return self.encode_bytes(deserialized_input)
+            output = self.encode_bytes(deserialized_input)
         elif isinstance(deserialized_input, dict):
-            return self.encode_map(deserialized_input)
+            output = self.encode_map(deserialized_input)
         elif isinstance(deserialized_input, set):
-            return self.encode_set(deserialized_input)
+            output = self.encode_set(deserialized_input)
+        
+        return output
         
     
     def is_verbatim_string(self, deserialized_input) -> bool:
@@ -109,6 +113,8 @@ class Serializer:
             components.append(self.serialize(element))
         
         return "".join(components)
+
+
 
 
 
