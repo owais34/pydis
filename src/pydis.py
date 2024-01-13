@@ -20,7 +20,7 @@ class Pydis():
         last_saved_time = self.local_storage.get_last_saved_time()
         command_list = self.logger_instance.get_commands_after_time(last_saved_time)
         self.command_runner.execute_all(command_list)
-        self.persistBehaviour = PersistAtTimeBehaviour(self.global_data_store,self.local_storage,start_at_time,interval_in_seconds=10*60,filename_prefix=self.filename_prefix)
+        self.persistBehaviour = PersistAtTimeBehaviour(self.global_data_store,self.local_storage,start_at_time,interval_in_seconds=60*60,filename_prefix=self.filename_prefix)
         pass
 
     def process_serialized(self, bytes_form: bytes):

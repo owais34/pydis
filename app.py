@@ -1,18 +1,12 @@
-
-
 from typing import Annotated
 from uuid import uuid4
 from pydantic import BaseModel
-from time import time,time_ns
+from time import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI,Header,Response,status,Request
-from src.resp.deserializer import Deserializer
-from src.resp.serializer import Serializer
 from src.datastore.persist import STORAGE_SERVICE
 from src.datastore.logger import LOGGER_SERVICE
 from src.pydis import Pydis
-import json
-import os
 
 token_dict = {}
 
@@ -38,20 +32,14 @@ pydisapp = Pydis()
 async def handle_commands_resp(request: Request):
     
     bytes_form = await request.body()
-    timenow = time()
     op=pydisapp.process_serialized(bytes_form)
-    timethen=time()
-    print("time to serve resp :"+str((timethen-timenow)*1000)+"ms")
     return op
 
 @app.post("/json")
 async def handle_commands_json(request: Request):
     
     json_form = await request.body()
-    timenow = time()
     op=pydisapp.process_json(json_form)
-    timethen=time()
-    print("time to serve json :"+str((timethen-timenow)*1000)+"ms")
     return op
 
 @app.get("/")

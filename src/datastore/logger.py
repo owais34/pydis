@@ -32,7 +32,7 @@ class Logger():
         while True and LOGGER_SERVICE.run_logger_service:
             if len(self.command_queue)>0:
                 command = self.command_queue.popleft()
-                filename = "LOG-"+strftime("%Y-%b-%d.dat", localtime(time()))
+                filename = "LOG-"+strftime("%Y-%m-%d.dat", localtime(time()))
                 fullpath = os.path.join(self.path,filename)
                 with open(fullpath, "ab") as file:
                     file.write(bytes(str(command["time"])+">"+command["cmd"]+"\r\n","utf-8"))
@@ -45,17 +45,19 @@ class Logger():
     def get_commands_after_time(self, time : float):
         log_files_list = []
         command_list = []
-        input_date = strftime("%Y-%b-%d.dat", localtime(time))
+        input_date = strftime("%Y-%m-%d.dat", localtime(time))
         for filename in glob.glob(os.path.join(self.path, 'LOG-*.dat')):
             log_files_list.append(os.path.join(self.path,filename))
         log_files_list = sorted(log_files_list)
         for filename in log_files_list:
             with open(filename,"r",encoding="utf-8",newline="\r\n") as logfile:
-                date_of_file = filename.split("-")[-1][:-4]
+                date_of_file = filename.split("-", 1)[-1][:-4]
                 if date_of_file>=input_date:
                     for line in logfile:
                         time_cmd = line.split(">",1)
-                        if float(time_cmd[0])>time:
-                                command_list.append(json.load(time_cmd[1]))        
+                        if len(time_cmd)>1 and float(time_cmd[0])>time:
+                            time_cmd[1]=time_cmd[1].replace("\r\n","")
+                            command_list.append(time_cmd[1])       
         return command_list
+    
 
